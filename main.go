@@ -34,9 +34,12 @@ func main() {
 			//fmt.Fprintf(os.Stderr, "Illegal domain %s\n", err)
 			m.SetQuestion(d+".", dns.TypeCNAME)
 			m.RecursionDesired = true
-			r, _, _ := c.Exchange(m, config.Servers[0]+":"+config.Port)
-			fmt.Print(d + " | ")
-			fmt.Println(r.Answer[0].(*dns.CNAME).Target[:len(r.Answer[0].(*dns.CNAME).Target)-1])
+			r, _, err2 := c.Exchange(m, config.Servers[0]+":"+config.Port)
+			if err2 != nil {
+				fmt.Print(d + " | ")
+				fmt.Println(r.Answer[0].(*dns.CNAME).Target[:len(r.Answer[0].(*dns.CNAME).Target)-1])
+			}
+
 		}
 
 	}

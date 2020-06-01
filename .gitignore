@@ -17,3 +17,5 @@
 #VS Code project
 takemeon.code-workspace
 
+# ignore macos generated testing binary
+main
