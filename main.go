@@ -31,13 +31,20 @@ func main() {
 	for _, d := range domains {
 		_, err := net.LookupCNAME(d)
 		if err != nil {
-			//fmt.Fprintf(os.Stderr, "Illegal domain %s\n", err)
-			m.SetQuestion(d+".", dns.TypeCNAME)
+			m.SetQuestion(dns.Fqdn(d), dns.TypeCNAME)
 			m.RecursionDesired = true
 			r, _, err2 := c.Exchange(m, config.Servers[0]+":"+config.Port)
+			// Check if the domain is actually not existing
 			if err2 != nil {
+				continue
+			}
+			// Check to see if the Answer's length is 0
+			if len(r.Answer) == 0 {
+				continue
+			}
+			if r, ok := r.Answer[0].(*dns.CNAME); ok {
 				fmt.Print(d + " | ")
-				fmt.Println(r.Answer[0].(*dns.CNAME).Target[:len(r.Answer[0].(*dns.CNAME).Target)-1])
+				fmt.Println(r.Target[:len(r.Target)-1])
 			}
 
 		}
