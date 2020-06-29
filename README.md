@@ -25,3 +25,4 @@ Usage of ./main:
 go get -u github.com/milindpurswani/takemeon
 ```
 
+For more information,check out: https://pandaonair.com/2020/06/29/takemeon.html
