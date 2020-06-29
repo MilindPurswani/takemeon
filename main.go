@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/miekg/dns"
@@ -13,12 +14,26 @@ import (
 
 type domainList []string
 
-func main() {
+var dnserver string
 
+func main() {
+	// cli for setting concurrency
 	var concurrency int
-	flag.IntVar(&concurrency, "c", 20, "set the concurrency level")
+	ds := dnserver
+	flag.IntVar(&concurrency, "c", 1, "set the concurrency level")
+
+	// cli for specifying dns server manually
+	var mdns string
+	flag.StringVar(&mdns, "mdns", "/etc/resolv.conf", "Manually Specify dns server IP address only. (Just a little faster)")
 	flag.Parse()
-	config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
+	// Use the right dns server
+	if strings.Compare(mdns, "/etc/resolv.conf") == 0 {
+		config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
+		ds = config.Servers[0] + ":" + config.Port
+	} else {
+		ds = mdns + ":53"
+	}
+
 	c := new(dns.Client)
 	m := new(dns.Msg)
 	sc := bufio.NewScanner(os.Stdin)
@@ -40,7 +55,7 @@ func main() {
 				if err != nil {
 					m.SetQuestion(dns.Fqdn(d), dns.TypeCNAME)
 					m.RecursionDesired = true
-					r, _, err2 := c.Exchange(m, config.Servers[0]+":"+config.Port)
+					r, _, err2 := c.Exchange(m, ds)
 					// Check if the domain is actually not existing
 					if err2 != nil {
 						continue
