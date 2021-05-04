@@ -14,9 +14,11 @@ test3.milindpurswani.com | totallynonexistingdomain.com
 $ takemeon -h 
 Usage of ./main:
   -c int
-        set the concurrency level (default 1)
+    	set the concurrency level (default 1)
+  -json-output
+    	Output in JSON format.
   -mdns string
-        Specify dns server IP address. (Makes this tool run a little faster) (default "/etc/resolv.conf")
+    	Manually Specify dns server IP address only. (Just a little faster) (default "/etc/resolv.conf")
 ```
 
 ## Installation
