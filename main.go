@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net"
@@ -12,6 +13,11 @@ import (
 	"github.com/miekg/dns"
 )
 
+type JsonOutputStruct struct {
+	Domain     string `json:"domain"`
+	Resolution string `json:"resolution"`
+}
+
 type domainList []string
 
 var dnserver string
@@ -19,13 +25,18 @@ var dnserver string
 func main() {
 	// cli for setting concurrency
 	var concurrency int
-	ds := dnserver
 	flag.IntVar(&concurrency, "c", 1, "set the concurrency level")
 
 	// cli for specifying dns server manually
 	var mdns string
 	flag.StringVar(&mdns, "mdns", "/etc/resolv.conf", "Manually Specify dns server IP address only. (Just a little faster)")
+
+	//cli for json output
+	var json_o = flag.Bool("json-output", false, "Output in JSON format.")
 	flag.Parse()
+
+	ds := dnserver
+
 	// Use the right dns server
 	if strings.Compare(mdns, "/etc/resolv.conf") == 0 {
 		config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
@@ -65,8 +76,18 @@ func main() {
 						continue
 					}
 					if r, ok := r.Answer[0].(*dns.CNAME); ok {
-						fmt.Print(d + " | ")
-						fmt.Println(r.Target[:len(r.Target)-1])
+						if !*json_o {
+							fmt.Print(d + " | ")
+							fmt.Println(r.Target[:len(r.Target)-1])
+						} else {
+							jso := &JsonOutputStruct{
+								Domain:     d,
+								Resolution: r.Target[:len(r.Target)-1],
+							}
+							o, _ := json.Marshal(jso)
+							fmt.Printf("%s\n", string(o))
+						}
+
 					}
 
 				}
