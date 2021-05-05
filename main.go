@@ -65,6 +65,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed to read input from file %s\n", err)
 	}
 
+	var o_struct []JsonOutputStruct
+
 	wg := new(sync.WaitGroup)
 	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
@@ -89,12 +91,11 @@ func main() {
 							fmt.Print(d + " | ")
 							fmt.Println(r.Target[:len(r.Target)-1])
 						} else {
-							jso := &JsonOutputStruct{
+							jso := JsonOutputStruct{
 								Domain:     d,
 								Resolution: r.Target[:len(r.Target)-1],
 							}
-							o, _ := json.Marshal(jso)
-							fmt.Printf("%s\n", string(o))
+							o_struct = append(o_struct, jso)
 						}
 
 					}
@@ -106,4 +107,9 @@ func main() {
 		}()
 	}
 	wg.Wait()
+
+	o, _ := json.Marshal(o_struct)
+	if *json_o {
+		fmt.Printf("%s\n", string(o))
+	}
 }
