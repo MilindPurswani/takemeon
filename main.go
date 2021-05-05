@@ -47,6 +47,15 @@ func main() {
 
 	c := new(dns.Client)
 	m := new(dns.Msg)
+
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) != 0 {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		fmt.Println("\techo test.example.com | ", os.Args[0])
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
 	sc := bufio.NewScanner(os.Stdin)
 	domains := domainList{}
 	for sc.Scan() {
