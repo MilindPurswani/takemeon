@@ -24,7 +24,7 @@ Usage of ./main:
 ## Installation
 
 ```
-go get -u github.com/milindpurswani/takemeon
+go install -v github.com/milindpurswani/takemeon@latest
 ```
 
 For more information,check out: https://pandaonair.com/2020/06/29/takemeon.html
